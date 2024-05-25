@@ -6,3 +6,11 @@ pandas==1.4.4
 psycopg2==2.9.9
 python-dotenv==1.0.1
 Requests==2.32.2
+
+streamlit>=1.28
+trubrics>=1.4.3
+streamlit-feedback
+langchain-core>=0.1.21
+langchain-groq==0.1.4
+langsmith==0.1.17
+groq==0.4.1
