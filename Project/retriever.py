@@ -18,7 +18,7 @@ def query_neon(query, collection_name, cursor, vector_name="title_vector", top_k
 
         # Create the SQL query
         query_sql = f"""
-        SELECT id, url, title, content
+        SELECT id, url, title, content,last_modified,attach_link
         FROM {collection_name}
         ORDER BY {vector_name} <=> '{embedded_query_pg}'
         LIMIT {top_k};
@@ -52,7 +52,7 @@ def get_common_results(query, collection_name, cursor, top_k=5):
 def format_results(results):
     formatted_string = ""
     for i, result in enumerate(results, start=1):
-        doc_id, url, title, content = result
-        formatted_string += f"*Document {i}:*\nTitle: {title}\nContent: {content}\nURL: {url}\n\n"
+        doc_id, url, title, content, last_modified,attach_link = result
+        formatted_string += f"*Document {i}:*\nTitle: {title}\nContent: {content}\nURL: {url}\nLast Modified: {last_modified}\nAttach Link: {attach_link}\n "
     return formatted_string
     

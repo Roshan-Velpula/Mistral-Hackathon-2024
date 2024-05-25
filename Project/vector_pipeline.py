@@ -1,6 +1,7 @@
 import os
 import psycopg2
 from dotenv import load_dotenv
+import io
 
 # Load environment variables from .env file
 load_dotenv()
@@ -39,22 +40,32 @@ def create_table_if_not_exists(cursor, connection):
             title TEXT,
             content TEXT,
             url TEXT,
+            last_modified TEXT,
+            attach_link TEXT,
             title_vector vector(1024),
-            content_vector vector(1024),
-            vector_id INTEGER
+            content_vector vector(1024)
         );
 
         ALTER TABLE public.edu ADD PRIMARY KEY (id);
         '''
         cursor.execute(create_table_sql)
         connection.commit()
+        
+def process_file(csv_file_path):
+    with open(csv_file_path, 'r', encoding='utf-8') as file:
+        for line in file:
+            yield line
 
 # Function to load CSV data into the table
 def load_csv_to_db(cursor, connection, csv_file_path):
+    modified_lines = io.StringIO(''.join(list(process_file(csv_file_path))))
     copy_command = '''
-    COPY public.edu (id, url, title, content, title_vector, content_vector, vector_id)
+    COPY public.edu (id, url, title, content,last_modified,attach_link, title_vector, content_vector)
     FROM STDIN WITH (FORMAT CSV, HEADER true, DELIMITER ',');
     '''
-    with open(csv_file_path, 'r', encoding='utf-8') as file:
-        cursor.copy_expert(copy_command, file)
+    
+    cursor.copy_expert(copy_command, modified_lines)
     connection.commit()
+    
+
+

@@ -1,13 +1,27 @@
-from vector_pipeline import connect_db
+from vector_pipeline import connect_db, table_exists,create_table_if_not_exists,load_csv_to_db
 from retriever import format_results, get_common_results
 from langchain.prompts import PromptTemplate
 from langchain_mistralai import ChatMistralAI
+from dotenv import load_dotenv
+import os
 
+env_loaded = load_dotenv()
+print("Environment loaded:", env_loaded)
 
+script_dir = os.path.dirname(__file__)
+os.chdir(script_dir)
+
+api_key = os.getenv('MISTRAL_API')
 
 query = "How do i enrol?"
 
+csv_file_path = os.path.join("data", "articles_with_embeddings_mistral_new.csv")
+
 connection, cursor = connect_db()
+
+create_table_if_not_exists(cursor, connection)
+load_csv_to_db(cursor,connection,csv_file_path)
+
 
 
 results = get_common_results(query, 'edu', cursor=cursor)
@@ -34,7 +48,7 @@ system_prompt_template = """
 You are a helpful, friendly chat assitant to help students with their admin related queries
 """
 
-llm = ChatMistralAI(api_key='jEoYKB36Y0ClSdn2n1cuLziCuyqntQzf', streaming= True, system = system_prompt_template)
+llm = ChatMistralAI(api_key=api_key, streaming= True, system = system_prompt_template)
 
 
 astream = llm.astream(formatted_prompt)
