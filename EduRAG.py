@@ -44,6 +44,20 @@ selected_model = st.sidebar.selectbox("Select Model", model_options)
 for msg in st.session_state.messages:
     st.chat_message(msg["role"]).write(msg["content"])
 
+if 'clicked' not in st.session_state:
+            st.session_state.clicked = False
+
+def click_button():
+    st.session_state.clicked = True
+
+memory_variables = st.session_state.memory.load_memory_variables({})
+chat_history = memory_variables.get("chat_history", [])
+
+if st.session_state.clicked:
+            # The message and nested widget will remain on the page
+            st.write("We have raised a ticket for you. Please wait for a response.")
+            send_to_slack(chat_history)
+    
 if prompt := st.chat_input():
     st.session_state.messages.append({"role": "human", "content": prompt})
     st.chat_message("user").write(prompt)
@@ -73,8 +87,15 @@ if prompt := st.chat_input():
                             {'role': 'assistant', 'content': 'The capital of Italy is Rome.'}
                         ]
 
-        st.button("I need more help", onclick=send_to_slack, args=list_temp)
-        st.chat_message("assistant").write("We have raised a ticket for you. Please wait for a response.")
+        
+        
+
+        st.button("I need more help", on_click=click_button)
+
+        
+            #st.slider('Select a value')
+        #st.button("I need more help", onclick=send_to_slack, args=list_temp)
+        #st.chat_message("assistant").write("We have raised a ticket for you. Please wait for a response.")
 
 
 
