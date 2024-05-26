@@ -6,11 +6,13 @@ from langchain_mistralai.embeddings import MistralAIEmbeddings
 from langchain_mistralai import ChatMistralAI
 from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
-from prompts import custom_answer_prompt_template_reform
+import requests
+import random
+from prompts import custom_answer_prompt_template_reform, summary_prompt
 import re
 
 
-
+webhook_url = os.genenv('SLACK_WEB_HOOK')
 api_key = os.getenv('MISTRAL_API')
 groq_api = os.getenv('GROQ_API')
 
@@ -19,12 +21,45 @@ embeddings = MistralAIEmbeddings(model="mistral-embed", mistral_api_key= api_key
 
 answer_prompt = PromptTemplate(template=custom_answer_prompt_template_reform, input_variables=['query'])
 
+summarize_prompt = PromptTemplate(template=summary_prompt, input_variables=['chat_history'])
 
 chat = ChatGroq(temperature=0, groq_api_key = groq_api, model_name="Mixtral-8x7b-32768")
 
 # Define the regular expressions for English and French questions
 english_pattern = r'English:\s*(.*?)(?=French:|$)'
 french_pattern = r'French:\s*(.*)'
+
+def chat_history_to_string(chat_history):
+    chat_string = ""
+    for entry in chat_history:
+        role = entry['role'].capitalize()
+        content = entry['content']
+        chat_string += f"{role}: {content}\n"
+    return chat_string.strip()  # To remove the trailing newline
+
+def summarizer(chat_history):
+    
+    chat_log = chat_history_to_string(chat_history)
+    formatted_prompt = summarize_prompt.format(chat_history=chat_log)
+    
+    summary = chat.invoke(formatted_prompt).content
+    
+    ticket_number = random.randint(1,100)
+    
+    return f"Ticket Number: {ticket_number} \n {summary}"
+
+def send_to_slack(chat_history):
+    
+    summary = summarizer(chat_history)
+    
+    payload = {
+        "text": summary
+    }
+    response = requests.post(webhook_url, json=payload)
+    if response.status_code != 200:
+        raise ValueError(f"Request to Slack returned an error {response.status_code}, the response is:\n{response.text}")
+    return response
+    
 
 def reform(query, llm):
     formatted_prompt = answer_prompt.format(query=query)

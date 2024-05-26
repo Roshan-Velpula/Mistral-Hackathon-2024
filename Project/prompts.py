@@ -6,6 +6,19 @@ You always respond in the same language as of the question.
 [/INST]
 """
 
+summary_prompt = """ 
+
+You are a summarization system that can provide summaries with the apt title.
+In clear and concise language, provide a short summaries of the following student helpdesk conversation, along with an apt title.
+You will only respond in the below format Do not provide explanations.
+
+Title: 'Title'
+
+Summary: 'summary'
+
+Here is the conversation: {chat_history}
+
+"""
 custom_answer_prompt_template_reform = """ 
 
 <s>[INST]You are a question rephraser with translation. In the context of student queries, rephrase the question: {query} without losing keywords into french and english
@@ -21,9 +34,9 @@ custom_answer_prompt_template = """
 
 - Always follow the structure in Examples
 - Always answer in the same language as of the question.
-- If the passages has attachment links, add them under sources
+- If the passages has attachment links, add them under sources only if the passages are relevant to the question.
 - If the passages has last modified data, use that in the answer.
-- If the passages are not relevant to the question, say "That's an interesting question! However,I can not help you.”
+- If the passages are not relevant to the question, say "That's an interesting question! However,I can not help you.” and do not add any source links
 - If there are urls as part of the context, share the url at the end of the answer along with a the description of what it contains.
 - Sources link should ALWAYS be hyperlinked in markdown structure [Document name](link)
 
