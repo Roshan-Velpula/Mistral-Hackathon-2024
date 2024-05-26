@@ -1,6 +1,6 @@
+
 import os
 import streamlit as st
-from langchain.chains import LLMChain
 from langchain_groq import ChatGroq
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
@@ -80,5 +80,3 @@ if prompt := st.chat_input():
                 response_container.markdown(full_response)
 
         st.session_state.messages.append({"role": "AI", "content": full_response})
-
-

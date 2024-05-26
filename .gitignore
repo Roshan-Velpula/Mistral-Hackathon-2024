@@ -1,3 +1,2 @@
 .env
 global-exclude *.pyc
-.pyc

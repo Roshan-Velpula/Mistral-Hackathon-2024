@@ -1,17 +1,11 @@
 import os
 import psycopg2
-from dotenv import load_dotenv
 import io
 
-# Load environment variables from .env file
-load_dotenv()
+
 
 # Get the database connection string
-NEON_DB = os.getenv('NEON_DATABASE')
-if not NEON_DB:
-    NEON_DB = os.getenv("DATABASE_URL")
-    if not NEON_DB:
-        raise ValueError("Please provide a valid connection string either in the code or in the .env file as DATABASE_URL.")
+NEON_DB = 'postgresql://edu_owner:sTpiby5jBu3N@ep-round-bush-a5kvmkoo.us-east-2.aws.neon.tech/edu?options=endpoint%3Dep-round-bush-a5kvmkoo'
 
 # Function to connect to the database
 def connect_db():
