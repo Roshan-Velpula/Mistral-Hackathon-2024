@@ -20,9 +20,9 @@ custom_answer_prompt_template = """
 <s>[INST] Follow the guidelines:
 
 - Always follow the structure in Examples
+- Always answer in the same language as of the question.
 - If the passages has attachment links, add them under sources
 - If the passages has last modified data, use that in the answer.
-- You have to answer in the same language as of the question.
 - If the passages are not relevant to the question, say "That's an interesting question! However,I can not help you.”
 - If there are urls as part of the context, share the url at the end of the answer along with a the description of what it contains.
 - Sources link should ALWAYS be hyperlinked in markdown structure [Document name](link)
