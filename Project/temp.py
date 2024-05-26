@@ -11,7 +11,7 @@ print("Environment loaded:", env_loaded)
 script_dir = os.path.dirname(__file__)
 os.chdir(script_dir)
 
-api_key = os.getenv('MISTRAL_API')
+api_key = os.getenv('MISTRAL_API_KEY')
 
 query = "How do i enrol?"
 
@@ -19,8 +19,7 @@ csv_file_path = os.path.join("data", "articles_with_embeddings_mistral_new.csv")
 
 connection, cursor = connect_db()
 
-create_table_if_not_exists(cursor, connection)
-load_csv_to_db(cursor,connection,csv_file_path)
+
 
 
 
@@ -52,7 +51,6 @@ llm = ChatMistralAI(api_key=api_key, streaming= True, system = system_prompt_tem
 
 
 astream = llm.astream(formatted_prompt)
-
 
 print(llm.invoke(formatted_prompt))
 
