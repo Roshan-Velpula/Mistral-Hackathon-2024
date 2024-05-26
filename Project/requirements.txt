@@ -14,3 +14,4 @@ langchain-core>=0.1.21
 langchain-groq==0.1.4
 langsmith==0.1.17
 groq==0.4.1
+mistralai==0.2.0
