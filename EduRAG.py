@@ -4,15 +4,14 @@ from langchain.chains import LLMChain
 from langchain_groq import ChatGroq
 from langchain_mistralai import ChatMistralAI
 from langchain_core.messages import SystemMessage
-from retriever import format_results, get_common_results
+from Project.retriever import format_results, get_common_results
 from langchain.memory import ConversationBufferWindowMemory
+from Project.vector_pipeline import connect_db
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder, HumanMessagePromptTemplate, PromptTemplate
-from vector_pipeline import connect_db, table_exists,create_table_if_not_exists,load_csv_to_db
 
 
-# Load environment variables from .env file
-groq_api_key = os.getenv("GROQ_API_KEY")
-api_key = os.getenv("MISTRAL_API_KEY")
+
+groq_api_key = "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"
 
 system_prompt = "you are a helpful chatbot for a university student. You are to provide the relevnt {output_data} to help students ."
 
