@@ -11,7 +11,7 @@ from Project.prompts import custom_answer_prompt_template
 from langchain.prompts import PromptTemplate
 
 # Streamlit UI
-st.title("💬 EduRAG")
+st.title("💬 CampusBOLT")
 st.caption("🚀 Get ESSEC info without the headache")
 
 
