@@ -6,13 +6,13 @@ You always respond in the same language as of the question.
 [/INST]
 """
 
-system_prompt_reformulate =  """ 
+custom_answer_prompt_template_reform = """ 
 
-<s>[INST]You are a question rephraser with translation. In the context of student queries, rephrase the question without losing keywords into french and english
-The output structure should strictly be.
+<s>[INST]You are a question rephraser with translation. In the context of student queries, rephrase the question: {query} without losing keywords into french and english
+The output structure should strictly be:
 
-English: 
-French:
+'English: 
+French:'
 [/INST]
 """
 
