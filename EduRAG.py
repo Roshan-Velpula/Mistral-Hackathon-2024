@@ -4,7 +4,7 @@ import streamlit as st
 from langchain_groq import ChatGroq
 from mistralai.client import MistralClient
 from mistralai.models.chat_completion import ChatMessage
-from Project.retriever import format_results, reform, rerag
+from Project.retriever import format_results, reform, rerag, send_to_slack
 from langchain.memory import ConversationBufferWindowMemory
 from Project.vector_pipeline import connect_db
 from Project.prompts import custom_answer_prompt_template
@@ -48,6 +48,7 @@ if prompt := st.chat_input():
     st.session_state.messages.append({"role": "human", "content": prompt})
     st.chat_message("user").write(prompt)
 
+
     connection, cursor = connect_db()
 
     # Create a conversation chain using the LangChain LLM (Language Learning Model)
@@ -63,6 +64,21 @@ if prompt := st.chat_input():
 
         st.session_state.messages.append({"role": "AI", "content": response})
         st.chat_message("assistant").write(response)
+
+
+        list_temp = [
+                            {'role': 'user', 'content': 'What is the capital of France?'},
+                            {'role': 'assistant', 'content': 'The capital of France is Paris.'}, 
+                            {'role': 'user', 'content': 'What about the capital of Italy?'},
+                            {'role': 'assistant', 'content': 'The capital of Italy is Rome.'}
+                        ]
+
+        st.button("I need more help", onclick=send_to_slack, args=list_temp)
+        st.chat_message("assistant").write("We have raised a ticket for you. Please wait for a response.")
+
+
+
+
     else:
         model = "mistral-large-latest"
         messages = [
@@ -80,3 +96,10 @@ if prompt := st.chat_input():
                 response_container.markdown(full_response)
 
         st.session_state.messages.append({"role": "AI", "content": full_response})
+
+
+        if st.button("I need more help"):
+            st.session_state.messages.append({"role": "assistant", "content": "We have raised a ticket for you. Please wait for a response."})
+            send_to_slack(st.memory.chat_history)
+        else:
+            pass
