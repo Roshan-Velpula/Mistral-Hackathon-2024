@@ -21,7 +21,7 @@ The **CampusBOLT** is a robust solution designed to assist students with adminis
 - **Information Retrieval**: Utilizes RAG to fetch relevant information from a vast knowledge base.
 - **User-Friendly Interface**: Easy to interact with, providing a seamless user experience.
 - **Multi-Lingual Support**: Responds to the user query in their language
-- **Ticket Generation**: Generates a support ticket automatically if the user needs more help
+- **Ticket Generation**: Summarizes the conversation and generates a support ticket to the admin team automatically if the user needs more help
 
 ## Installation
 
