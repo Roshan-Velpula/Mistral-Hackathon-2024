@@ -38,7 +38,7 @@ if "memory" not in st.session_state:
     st.session_state.memory = ConversationBufferWindowMemory(k=10, memory_key="chat_history", return_messages=True)
 
 # Sidebar option to select the model
-model_options = ["Groq 7B", "Mistral Large"]
+model_options = ["Mistral 70B", "Groq (Mistral 7B)"]
 selected_model = st.sidebar.selectbox("Select Model", model_options)
 
 for msg in st.session_state.messages:
@@ -57,6 +57,7 @@ if st.session_state.clicked:
             # The message and nested widget will remain on the page
             st.write("We have raised a ticket for you. Please wait for a response.")
             send_to_slack(chat_history)
+            st.session_state.clicked = False
     
 if prompt := st.chat_input():
     st.session_state.messages.append({"role": "human", "content": prompt})
@@ -72,7 +73,7 @@ if prompt := st.chat_input():
     answer_prompt = PromptTemplate(template=custom_answer_prompt_template, input_variables=['context', 'query'])
     formatted_prompt = answer_prompt.format(query=prompt, context=context)
 
-    if selected_model == "Groq 7B":
+    if selected_model == "Groq (Mistral 7B)":
         llm_groq=st.session_state.groq_chat
         response = llm_groq.invoke(formatted_prompt).content
 
@@ -92,14 +93,7 @@ if prompt := st.chat_input():
 
         st.button("I need more help", on_click=click_button)
 
-        
-            #st.slider('Select a value')
-        #st.button("I need more help", onclick=send_to_slack, args=list_temp)
-        #st.chat_message("assistant").write("We have raised a ticket for you. Please wait for a response.")
-
-
-
-
+    
     else:
         model = "mistral-large-latest"
         messages = [
@@ -119,8 +113,4 @@ if prompt := st.chat_input():
         st.session_state.messages.append({"role": "AI", "content": full_response})
 
 
-        if st.button("I need more help"):
-            st.session_state.messages.append({"role": "assistant", "content": "We have raised a ticket for you. Please wait for a response."})
-            send_to_slack(st.memory.chat_history)
-        else:
-            pass
+        st.button("I need more help", on_click=click_button)

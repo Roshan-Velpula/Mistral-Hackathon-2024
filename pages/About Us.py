@@ -4,16 +4,26 @@ from langchain.prompts import PromptTemplate
 
 
 # Page Content
-st.title("👋 About Us")
+st.title("About CampusBOLT")
 st.write("") # Padding
 
 
-st.write("We are a team of experts leveraging cutting-edge technologies to build amazing applications.")
-st.write("Our tech stack includes:")
-st.write("- Mistral: A powerful tool for managing and deploying machine learning models.")
-st.write("- Neon: A high-performance deep learning framework.")
-st.write("- LangChain: A library for building applications with large language models.")
-st.write("- Streamlit: A framework for creating interactive web applications.")
+st.write("**Millions of students use university directories to find vital information.**")
+st.write("")
+
+st.write("**These directories are plagued by issues such as:**")
+st.write("&nbsp; 📚&nbsp;  Information overload.")
+st.write("&nbsp; 🐌&nbsp; Finding what you need takes too long.")
+st.write("&nbsp; 👎&nbsp; Poor navigation and search functionality.")
+# Padding
+st.write("")  
+st.write("")
+
+
+st.write("**CampusBOLT addresses these issues through:**")
+st.write("&nbsp; 💬&nbsp; Intuitive chat interface.")
+st.write("&nbsp; 🚀&nbsp; Instant and precise answers.")
+st.write("&nbsp; 🔎&nbsp; Accurate info retrieval with source and resource links.")
 
 
 # Padding
@@ -22,11 +32,12 @@ st.write("")
 
 
 
+
 st.subheader("Tech Stack")
 st.write("")  
 
 # Display tech stack icons
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4, col5 = st.columns(5)
 
 
 with col1:
@@ -34,14 +45,18 @@ with col1:
     st.write("<div style='text-align: left; font-size: 14px;'>Mistral</div>", unsafe_allow_html=True)
 
 with col2:
+    st.image("assets/GroqLogo_White.png", width=45)
+    st.write("<div style='text-align: left; font-size: 14px;'>groq</div>", unsafe_allow_html=True)
+
+with col3:
     st.image("assets/neon-icon-seeklogo.svg", width=45)
     st.write("<div style='text-align: left; font-size: 14px;'>Neon</div>", unsafe_allow_html=True)
 
-with col3:
+with col4:
     st.image("assets/langchain-seeklogo.svg", width=90)
     st.write("<div style='text-align: left; font-size: 14px;'>LangChain</div>", unsafe_allow_html=True)
 
-with col4:
+with col5:
     st.image("assets/streamlit-seeklogo.svg", width=80)
     st.write("<div style='text-align: left; font-size: 14px;'>Streamlit</div>", unsafe_allow_html=True)
 

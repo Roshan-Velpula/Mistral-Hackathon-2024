@@ -1,4 +1,4 @@
 .env
-global-exclude *.pyc
+global-exclude .pyc
 # exucde files in Project/__pycache__
 global-exclude __pycache__
