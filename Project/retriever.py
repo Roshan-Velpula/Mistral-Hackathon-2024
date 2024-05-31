@@ -1,5 +1,5 @@
-from .vector_pipeline import connect_db
-from .prompts import custom_answer_prompt_template_reform, summary_prompt
+from Project.vector_pipeline import connect_db
+from prompts import custom_answer_prompt_template_reform, summary_prompt, ques_check_prompt
 import psycopg2
 import os
 from dotenv import load_dotenv
@@ -10,15 +10,28 @@ from langchain.prompts import PromptTemplate
 import requests
 import random
 import re
+env_loaded = load_dotenv()
+import openai
+from openai import OpenAI
 
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY"),
+)
+
+
+
+
+def get_embedding(text, model="text-embedding-3-small"):
+   text = text.replace("\n", " ")
+   return client.embeddings.create(input = [text], model=model).data[0].embedding
 
 webhook_url = os.getenv('SLACK_WEB_HOOK')
-api_key = os.getenv('MISTRAL_API')
+#api_key = os.getenv('MISTRAL_API')
 groq_api = os.getenv('GROQ_API')
 
-embeddings = MistralAIEmbeddings(model="mistral-embed", mistral_api_key= api_key)
+#embeddings = MistralAIEmbeddings(model="mistral-embed", mistral_api_key= api_key)
 
-
+ques_check = PromptTemplate(template=ques_check_prompt, input_variables=['query'])
 answer_prompt = PromptTemplate(template=custom_answer_prompt_template_reform, input_variables=['query'])
 
 summarize_prompt = PromptTemplate(template=summary_prompt, input_variables=['chat_history'])
@@ -28,6 +41,18 @@ chat = ChatGroq(temperature=0, groq_api_key = groq_api, model_name="Mixtral-8x7b
 # Define the regular expressions for English and French questions
 english_pattern = r'English:\s*(.*?)(?=French:|$)'
 french_pattern = r'French:\s*(.*)'
+
+def ques_check(query):
+    formatted_prompt =  ques_check_prompt.format(query=query)
+    answer = chat.invoke(formatted_prompt).content
+    no_pattern = r'no\s*(.*)'
+
+    match = re.search(no_pattern, answer.lower(), re.DOTALL)
+    
+    if match:
+        return False
+    else:
+        return True
 
 def chat_history_to_string(chat_history):
     chat_string = ""
@@ -74,45 +99,40 @@ def reform(query, llm):
     
     return english_question, french_question
 
-# def rerag(query, collection_name, cursor, top_k=5):
-    
-#     english_question, french_question = reform(query, chat)
-    
-#     english_results = get_common_results(english_question, collection_name, cursor, top_k=5)
-    
-#     french_results = get_common_results(french_question, collection_name, cursor, top_k = 5)
-    
-#     # Find common tuples based on id
-#     content_ids = {row[0] for row in english_results}
-#     common_results = [row for row in french_results if row[0] in content_ids]
-    
-#     return common_results if common_results else english_results
-    
-def rerag(query, collection_name, cursor, top_k=5):
-    
-    english_question, french_question = reform(query, chat)
-    
-    english_results = get_common_results(english_question, collection_name, cursor, top_k)
-    
-    french_results = get_common_results(french_question, collection_name, cursor, top_k)
-    
-    # Use a set to track seen content IDs
-    seen_ids = set()
-    combined_results = []
 
-    # Add unique English results to the combined list
-    for row in english_results:
-        if row[0] not in seen_ids:
-            combined_results.append(row)
-            seen_ids.add(row[0])
-
-    # Add unique French results to the combined list
-    for row in french_results:
-        if row[0] not in seen_ids:
-            combined_results.append(row)
-            seen_ids.add(row[0])
     
-    return combined_results
+def rerag(query, collection_name, cursor=connect_db()[1], top_k=5):
+    
+    if ques_check(query):
+    
+        english_question, french_question = reform(query, chat)
+        
+        english_results = get_common_results(english_question, collection_name, cursor, top_k)
+        
+        french_results = get_common_results(french_question, collection_name, cursor, top_k)
+        
+        # Use a set to track seen content IDs
+        seen_ids = set()
+        combined_results = []
+
+        # Add unique English results to the combined list
+        for row in english_results:
+            if row[0] not in seen_ids:
+                combined_results.append(row)
+                seen_ids.add(row[0])
+
+        # Add unique French results to the combined list
+        for row in french_results:
+            if row[0] not in seen_ids:
+                combined_results.append(row)
+                seen_ids.add(row[0])
+        
+        
+        return format_results(combined_results)
+    
+    else:
+        
+        return query
 
     
     
@@ -120,7 +140,7 @@ def rerag(query, collection_name, cursor, top_k=5):
 def query_neon(query, collection_name, cursor, vector_name="title_vector", top_k=5):
     try:
         # Create an embedding vector from the user query
-        embedded_query = embeddings.embed_query(query)
+        embedded_query = get_embedding(query)
         # Convert the embedded_query to PostgreSQL compatible format
         embedded_query_pg = "[" + ",".join(map(str, embedded_query)) + "]"
 

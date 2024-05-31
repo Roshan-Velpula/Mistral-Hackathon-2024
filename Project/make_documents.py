@@ -4,22 +4,40 @@ import json
 import os
 from dotenv import load_dotenv
 
-# Set the current working directory to the script's directory
-script_dir = os.path.dirname(__file__)
-os.chdir(script_dir)
+import openai
+from openai import OpenAI
 
 env_loaded = load_dotenv()
 print("Environment loaded:", env_loaded)
 
-api_key = os.getenv('MISTRAL_API')
 
+
+client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY"),
+)
+
+
+# Set the current working directory to the script's directory
+script_dir = os.path.dirname(__file__)
+os.chdir(script_dir)
+
+
+
+#api_key = os.getenv('MISTRAL_API')
+
+
+
+
+def get_embedding(text, model="text-embedding-3-small"):
+   text = text.replace("\n", " ")
+   return client.embeddings.create(input = [text], model=model).data[0].embedding
 
 
 
 
 #print(api_key)
 
-embeddings = MistralAIEmbeddings(model="mistral-embed", mistral_api_key= api_key)
+#embeddings = MistralAIEmbeddings(model="mistral-embed", mistral_api_key= api_key)
 
 json_path = os.path.join("data", "articles_data.json")
 
@@ -33,24 +51,27 @@ with open(json_path, 'r', encoding='utf-8') as file:
 data_list = []
 
 # Iterate through the JSON data and compute embeddings
-for title, article_list in data.items():
+for parent, article_list in data.items():
     # Compute the title embedding
-    title_vector = embeddings.embed_query(title)
     
     for article in article_list:
-        content = str(title) + '\n' + article['page_content']
+        
+        title_doc = article['metadata']['Title']
+                
+        content = str(parent) + '\n' + article['page_content']
         url = article['metadata']['URL']
-        parent = article['metadata']['Parent']
         last_modified=article['metadata']['last_modified']
         attach_link=article['metadata']['attach_link']
         
+        
         # Compute the content embedding
-        content_vector = embeddings.embed_query(content)
+        content_vector = get_embedding(content)
+        title_vector = get_embedding(title_doc)
         
         # Append the data to the list
         data_list.append({
             'url': url,
-            'title': title,
+            'title': title_doc,
             'content': content,
             'last_modified':last_modified,
             'attach_link':attach_link,
@@ -64,7 +85,7 @@ df = pd.DataFrame(data_list)
 df.index.name = 'id'
 
 # Export the DataFrame to a CSV file
-csv_path = os.path.join("data", "articles_with_embeddings_mistral_new.csv")
+csv_path = os.path.join("data", "articles_with_open_ai_embeddings.csv")
 df.to_csv(csv_path, index=True)
 
 print(f"Data has been successfully saved to {csv_path}")

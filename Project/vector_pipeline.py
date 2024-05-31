@@ -1,11 +1,18 @@
 import os
 import psycopg2
 import io
+from dotenv import load_dotenv
 
+# Set the current working directory to the script's directory
+script_dir = os.path.dirname(__file__)
+os.chdir(script_dir)
 
+env_loaded = load_dotenv()
+print("Environment loaded:", env_loaded)
 
-# Get the database connection string
-NEON_DB = 'postgresql://edu_owner:sTpiby5jBu3N@ep-round-bush-a5kvmkoo.us-east-2.aws.neon.tech/edu?options=endpoint%3Dep-round-bush-a5kvmkoo'
+NEON_DB = os.getenv('DATABASE_URL')
+
+csv_file_path = os.path.join('data','articles_with_open_ai_embeddings.csv' )
 
 # Function to connect to the database
 def connect_db():
@@ -36,8 +43,8 @@ def create_table_if_not_exists(cursor, connection):
             url TEXT,
             last_modified TEXT,
             attach_link TEXT,
-            title_vector vector(1024),
-            content_vector vector(1024)
+            title_vector vector(1536),
+            content_vector vector(1536)
         );
 
         ALTER TABLE public.edu ADD PRIMARY KEY (id);
@@ -63,3 +70,8 @@ def load_csv_to_db(cursor, connection, csv_file_path):
     
 
 
+#connection, cursor = connect_db()
+
+#create_table_if_not_exists(cursor, connection)
+
+#load_csv_to_db(cursor, connection, csv_file_path)
