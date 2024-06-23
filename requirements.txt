@@ -3,7 +3,7 @@ html2text==2024.2.26
 langchain==0.2.1
 langchain_mistralai==0.1.7
 pandas==1.4.4
-psycopg2==2.9.9
+psycopg2-binary==2.9.9
 python-dotenv==1.0.1
 Requests==2.32.2
 openai
